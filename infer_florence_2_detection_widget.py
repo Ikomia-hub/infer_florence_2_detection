@@ -6,11 +6,6 @@ from infer_florence_2_detection.infer_florence_2_detection_process import InferF
 from PyQt5.QtWidgets import *
 from torch.cuda import is_available
 
-
-# --------------------
-# - Class which implements widget associated with the algorithm
-# - Inherits PyCore.CWorkflowTaskWidget from Ikomia API
-# --------------------
 class InferFlorence2DetectionWidget(core.CWorkflowTaskWidget):
 
     def __init__(self, param, parent):
@@ -49,6 +44,7 @@ class InferFlorence2DetectionWidget(core.CWorkflowTaskWidget):
         self.combo_task_prompt.addItem("OPEN_VOCABULARY_DETECTION")
 
         self.combo_task_prompt.setCurrentText(self.parameters.task_prompt)
+        self.combo_task_prompt.currentIndexChanged.connect(self.update_prompt_visibility)
 
         # Prompt
         self.edit_prompt = pyqtutils.append_edit(self.grid_layout, "Prompt", self.parameters.prompt)
@@ -81,6 +77,16 @@ class InferFlorence2DetectionWidget(core.CWorkflowTaskWidget):
         # Set widget layout
         self.set_layout(layout_ptr)
 
+        # Initial visibility state
+        self.update_prompt_visibility()
+
+    def update_prompt_visibility(self):
+        task_prompt = self.combo_task_prompt.currentText()
+        if task_prompt in ["CAPTION_TO_PHRASE_GROUNDING", "OPEN_VOCABULARY_DETECTION"]:
+            self.edit_prompt.setVisible(True)
+        else:
+            self.edit_prompt.setVisible(False)
+
     def on_apply(self):
         # Apply button clicked slot
         self.parameters.model_name = self.combo_model.currentText()
@@ -95,19 +101,3 @@ class InferFlorence2DetectionWidget(core.CWorkflowTaskWidget):
 
         # Send signal to launch the algorithm main function
         self.emit_apply(self.parameters)
-
-
-# --------------------
-# - Factory class to build algorithm widget object
-# - Inherits PyDataProcess.CWidgetFactory from Ikomia API
-# --------------------
-class InferFlorence2DetectionWidgetFactory(dataprocess.CWidgetFactory):
-
-    def __init__(self):
-        dataprocess.CWidgetFactory.__init__(self)
-        # Set the algorithm name attribute -> it must be the same as the one declared in the algorithm factory class
-        self.name = "infer_florence_2_detection"
-
-    def create(self, param):
-        # Create widget object
-        return InferFlorence2DetectionWidget(param, None)
