@@ -101,3 +101,19 @@ class InferFlorence2DetectionWidget(core.CWorkflowTaskWidget):
 
         # Send signal to launch the algorithm main function
         self.emit_apply(self.parameters)
+
+
+# --------------------
+# - Factory class to build algorithm widget object
+# - Inherits PyDataProcess.CWidgetFactory from Ikomia API
+# --------------------
+class InferFlorence2DetectionWidgetFactory(dataprocess.CWidgetFactory):
+
+    def __init__(self):
+        dataprocess.CWidgetFactory.__init__(self)
+        # Set the algorithm name attribute -> it must be the same as the one declared in the algorithm factory class
+        self.name = "infer_florence_2_detection"
+
+    def create(self, param):
+        # Create widget object
+        return InferFlorence2DetectionWidget(param, None)
