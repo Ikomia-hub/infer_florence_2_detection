@@ -252,6 +252,7 @@ class InferFlorence2DetectionFactory(dataprocess.CTaskFactory):
         self.info.keywords = "Florence,Microsoft,Object Detection,Unified,Pytorch"
         self.info.algo_type = core.AlgoType.INFER
         self.info.algo_tasks = "OBJECT_DETECTION"
+        self.info.os = utils.OSType.LINUX
 
     def create(self, param=None):
         # Create algorithm object
