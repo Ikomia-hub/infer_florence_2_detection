@@ -25,6 +25,7 @@ class InferFlorence2DetectionParam(core.CWorkflowTaskParam):
 
     def set_values(self, params):
         # Set parameters values from Ikomia Studio or API
+        self.update = utils.strtobool(params["cuda"]) != self.cuda or self.model_name != str(params["model_name"])
         self.model_name = str(params["model_name"])
         self.task_prompt = str(params["task_prompt"])
         self.prompt = str(params["prompt"])
@@ -33,7 +34,6 @@ class InferFlorence2DetectionParam(core.CWorkflowTaskParam):
         self.do_sample = utils.strtobool(params["do_sample"])
         self.early_stopping = utils.strtobool(params["early_stopping"])
         self.cuda = utils.strtobool(params["cuda"])
-        self.update = True
 
     def get_values(self):
         # Send parameters values to Ikomia Studio or API

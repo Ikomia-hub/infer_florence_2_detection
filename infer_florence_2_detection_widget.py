@@ -16,6 +16,9 @@ class InferFlorence2DetectionWidget(core.CWorkflowTaskWidget):
         else:
             self.parameters = param
 
+        self.initial_model_name = self.parameters.model_name
+        self.initial_cuda = self.parameters.cuda
+
         # Create layout : QGridLayout by default
         self.grid_layout = QGridLayout()
 
@@ -89,6 +92,12 @@ class InferFlorence2DetectionWidget(core.CWorkflowTaskWidget):
 
     def on_apply(self):
         # Apply button clicked slot
+        # Check param update
+        new_model_name = self.combo_model.currentText()
+        new_cuda = self.check_cuda.isChecked()
+        if new_model_name != self.initial_model_name or new_cuda != self.initial_cuda:
+            self.parameters.update = True
+
         self.parameters.model_name = self.combo_model.currentText()
         self.parameters.prompt = self.edit_prompt.text()
         self.parameters.task_prompt = self.combo_task_prompt.currentText()
@@ -97,7 +106,6 @@ class InferFlorence2DetectionWidget(core.CWorkflowTaskWidget):
         self.parameters.cuda = self.check_cuda.isChecked()
         self.parameters.do_sample = self.check_do_sample.isChecked()
         self.parameters.early_stopping = self.check_early_stopping.isChecked()
-        self.parameters.update = True
 
         # Send signal to launch the algorithm main function
         self.emit_apply(self.parameters)
