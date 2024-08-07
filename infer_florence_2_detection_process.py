@@ -75,6 +75,7 @@ class InferFlorence2Detection(dataprocess.CObjectDetectionTask):
         self.model_folder = os.path.join(os.path.dirname(os.path.realpath(__file__)), "weights")
         self.device = torch.device("cpu")
         self.open_vocab_task = '<OPEN_VOCABULARY_DETECTION>'
+        self.no_prompt_task_list = ["OD", "DENSE_REGION_CAPTION", "REGION_PROPOSAL"]
 
     def get_progress_steps(self):
         # Function returning the number of progress steps for this algorithm
@@ -119,14 +120,14 @@ class InferFlorence2Detection(dataprocess.CObjectDetectionTask):
 
         # Construct the output format
         od_results = {  
-            'bboxes': bboxes,  
+            'bboxes': bboxes,
             'labels': labels  
         }
 
         return od_results
 
     def infer(self, task_prompt, img, param, text_input=None):
-        if text_input is None:
+        if text_input is None or param.task_prompt in self.no_prompt_task_list:
             prompt = task_prompt
         else:
             prompt = task_prompt + text_input
