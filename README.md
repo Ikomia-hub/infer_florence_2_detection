@@ -22,7 +22,7 @@
 Florence-2 is an advanced vision foundation model that uses a prompt-based approach to handle a wide range of vision and vision-language tasks. 
 With this algorithm you can leverage Florence-2 for object detection across various tasks, using different options for prompts:
 
-![all outputs](https://github.com/Ikomia-hub/infer_florence_2_detection/images/output.jpg)
+![all outputs](https://raw.githubusercontent.com/Ikomia-hub/infer_florence_2_detection/main/images/output.jpg)
 
 
 ## :rocket: Use with Ikomia API
