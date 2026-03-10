@@ -25,7 +25,8 @@ class InferFlorence2DetectionParam(core.CWorkflowTaskParam):
 
     def set_values(self, params):
         # Set parameters values from Ikomia Studio or API
-        self.update = utils.strtobool(params["cuda"]) != self.cuda or self.model_name != str(params["model_name"])
+        self.update = utils.strtobool(
+            params["cuda"]) != self.cuda or self.model_name != str(params["model_name"])
         self.model_name = str(params["model_name"])
         self.task_prompt = str(params["task_prompt"])
         self.prompt = str(params["prompt"])
@@ -51,7 +52,6 @@ class InferFlorence2DetectionParam(core.CWorkflowTaskParam):
         return params
 
 
-
 # --------------------
 # - Class which implements the algorithm
 # - Inherits PyCore.CWorkflowTask or derived from Ikomia API
@@ -72,10 +72,12 @@ class InferFlorence2Detection(dataprocess.CObjectDetectionTask):
 
         self.processor = None
         self.model = None
-        self.model_folder = os.path.join(os.path.dirname(os.path.realpath(__file__)), "weights")
+        self.model_folder = os.path.join(
+            os.path.dirname(os.path.realpath(__file__)), "weights")
         self.device = torch.device("cpu")
         self.open_vocab_task = '<OPEN_VOCABULARY_DETECTION>'
-        self.no_prompt_task_list = ["OD", "DENSE_REGION_CAPTION", "REGION_PROPOSAL"]
+        self.no_prompt_task_list = [
+            "OD", "DENSE_REGION_CAPTION", "REGION_PROPOSAL"]
 
     def get_progress_steps(self):
         # Function returning the number of progress steps for this algorithm
@@ -85,32 +87,33 @@ class InferFlorence2Detection(dataprocess.CObjectDetectionTask):
     def load_model(self, param):
         try:
             self.processor = AutoProcessor.from_pretrained(
-                                    param.model_name,
-                                    cache_dir=self.model_folder,
-                                    local_files_only=True,
-                                    trust_remote_code=True
-                                    )
+                param.model_name,
+                cache_dir=self.model_folder,
+                local_files_only=True,
+                trust_remote_code=True
+            )
 
             self.model = AutoModelForCausalLM.from_pretrained(
-                                    param.model_name,
-                                    cache_dir=self.model_folder,
-                                    local_files_only=True,
-                                    trust_remote_code=True
-                                    ).eval()
+                param.model_name,
+                cache_dir=self.model_folder,
+                local_files_only=True,
+                trust_remote_code=True
+            ).eval()
 
         except Exception as e:
-            print(f"Failed with error: {e}. Trying without the local_files_only parameter...")
+            print(
+                f"Failed with error: {e}. Trying without the local_files_only parameter...")
             self.processor = AutoProcessor.from_pretrained(
-                                        param.model_name,
-                                        cache_dir=self.model_folder,
-                                        trust_remote_code=True
-                                        )
+                param.model_name,
+                cache_dir=self.model_folder,
+                trust_remote_code=True
+            )
 
             self.model = AutoModelForCausalLM.from_pretrained(
-                                    param.model_name,
-                                    cache_dir=self.model_folder,
-                                    trust_remote_code=True
-                                    ).eval()
+                param.model_name,
+                cache_dir=self.model_folder,
+                trust_remote_code=True
+            ).eval()
         self.model.to(self.device)
 
     def convert_to_od_format(self, data):
@@ -119,9 +122,9 @@ class InferFlorence2Detection(dataprocess.CObjectDetectionTask):
         labels = data.get('bboxes_labels', [])
 
         # Construct the output format
-        od_results = {  
+        od_results = {
             'bboxes': bboxes,
-            'labels': labels  
+            'labels': labels
         }
 
         return od_results
@@ -134,26 +137,27 @@ class InferFlorence2Detection(dataprocess.CObjectDetectionTask):
 
         # Image pre-process
         img_h, img_w = img.shape[:2]
-        inputs = self.processor(text=prompt, images=img, return_tensors="pt").to(self.device)
+        inputs = self.processor(text=prompt, images=img,
+                                return_tensors="pt").to(self.device)
 
         # Inference
         generated_ids = self.model.generate(
-                                    input_ids=inputs["input_ids"],
-                                    pixel_values=inputs["pixel_values"],
-                                    max_new_tokens=param.max_new_tokens,
-                                    early_stopping=param.early_stopping,
-                                    do_sample=param.do_sample,
-                                    num_beams=param.num_beams,
-                                    )
+            input_ids=inputs["input_ids"],
+            pixel_values=inputs["pixel_values"],
+            max_new_tokens=param.max_new_tokens,
+            early_stopping=param.early_stopping,
+            do_sample=param.do_sample,
+            num_beams=param.num_beams,
+        )
         generated_text = self.processor.batch_decode(
-                                            generated_ids,
-                                            skip_special_tokens=False
-                                            )[0]
+            generated_ids,
+            skip_special_tokens=False
+        )[0]
         parsed_answer = self.processor.post_process_generation(
-                                            generated_text,
-                                            task=task_prompt,
-                                            image_size=(img_w, img_h)
-                                            )
+            generated_text,
+            task=task_prompt,
+            image_size=(img_w, img_h)
+        )
 
         return parsed_answer
 
@@ -182,7 +186,8 @@ class InferFlorence2Detection(dataprocess.CObjectDetectionTask):
 
         # Inference
         with torch.no_grad():
-            output = self.infer(task_prompt_formatted, src_image, param, param.prompt)
+            output = self.infer(task_prompt_formatted,
+                                src_image, param, param.prompt)
 
         if task_prompt_formatted == self.open_vocab_task:
             results = self.convert_to_od_format(output[task_prompt_formatted])
@@ -198,7 +203,8 @@ class InferFlorence2Detection(dataprocess.CObjectDetectionTask):
         class_to_int = {cls: idx for idx, cls in enumerate(classes_unique)}
 
         # Transform labels to integers
-        results['labels_int'] = [class_to_int[label] for label in results['labels']]
+        results['labels_int'] = [class_to_int[label]
+                                 for label in results['labels']]
 
         for i, (bbox, label) in enumerate(zip(results['bboxes'], results['labels_int'])):
             # Unpack the bounding box coordinates
@@ -207,14 +213,14 @@ class InferFlorence2Detection(dataprocess.CObjectDetectionTask):
             h = y2 - y1
 
             self.add_object(
-                        i,
-                        int(label),
-                        float(1),
-                        float(x1),
-                        float(y1),
-                        float(w),
-                        float(h)
-                    )
+                i,
+                int(label),
+                float(1),
+                float(x1),
+                float(y1),
+                float(w),
+                float(h)
+            )
 
         # Step progress bar (Ikomia Studio):
         self.emit_step_progress()
@@ -236,7 +242,7 @@ class InferFlorence2DetectionFactory(dataprocess.CTaskFactory):
         self.info.short_description = "Run florence 2 object detection with or without text prompt"
         # relative path -> as displayed in Ikomia Studio algorithm tree
         self.info.path = "Plugins/Python/Detection"
-        self.info.version = "1.0.0"
+        self.info.version = "2.0.0"
         self.info.icon_path = "images/icon.png"
         self.info.authors = "B. Xiao, H. Wu, W. Xu, X. Dai, H. Hu, Y. Lu, M. Zeng, C. Liu, L. Yuan"
         self.info.article = "Florence-2: Advancing a Unified Representation for a Variety of Vision Tasks"
@@ -247,7 +253,8 @@ class InferFlorence2DetectionFactory(dataprocess.CTaskFactory):
         self.info.repository = "https://github.com/Ikomia-hub/infer_florence_2_caption"
         self.info.original_repository = "https://github.com/googleapis/python-vision"
         # Python version
-        self.info.min_python_version = "3.10.0"
+        self.info.min_python_version = "3.11.0"
+        self.info.min_ikomia_version = "0.15.0"
         # Keywords used for search
         self.info.keywords = "Florence,Microsoft,Object Detection,Unified,Pytorch"
         self.info.algo_type = core.AlgoType.INFER
