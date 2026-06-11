@@ -2,8 +2,9 @@
 torch>=2.6.0, <2.8.0
 torchvision>=0.21.0, <0.23.0
 
-transformers>=4.38,<5.0
-tokenizers>=0.19,<0.20
+transformers>=4.56,<5.0
+tokenizers>=0.21,<1.0
+# tokenizers>=0.19,<0.20
 
 timm
 einops

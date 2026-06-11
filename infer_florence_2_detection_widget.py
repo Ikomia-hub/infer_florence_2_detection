@@ -3,7 +3,7 @@ from ikomia.utils import pyqtutils, qtconversion
 from infer_florence_2_detection.infer_florence_2_detection_process import InferFlorence2DetectionParam
 
 # PyQt GUI framework
-from PyQt5.QtWidgets import *
+from PyQt6.QtWidgets import *
 from torch.cuda import is_available
 
 class InferFlorence2DetectionWidget(core.CWorkflowTaskWidget):
@@ -30,10 +30,10 @@ class InferFlorence2DetectionWidget(core.CWorkflowTaskWidget):
         # Model name
         self.combo_model = pyqtutils.append_combo(
             self.grid_layout, "Model name")
-        self.combo_model.addItem("microsoft/Florence-2-base")
-        self.combo_model.addItem("microsoft/Florence-2-large")
-        self.combo_model.addItem("microsoft/Florence-2-base-ft")
-        self.combo_model.addItem("microsoft/Florence-2-large-ft")
+        self.combo_model.addItem("florence-community/Florence-2-base")
+        self.combo_model.addItem("florence-community/Florence-2-large")
+        self.combo_model.addItem("florence-community/Florence-2-base-ft")
+        self.combo_model.addItem("florence-community/Florence-2-large-ft")
 
         self.combo_model.setCurrentText(self.parameters.model_name)
 

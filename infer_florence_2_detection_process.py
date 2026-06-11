@@ -2,7 +2,7 @@ import copy
 import torch
 import os
 from ikomia import core, dataprocess, utils
-from transformers import AutoProcessor, AutoModelForCausalLM
+from transformers import AutoProcessor, Florence2ForConditionalGeneration
 
 
 # --------------------
@@ -13,7 +13,7 @@ class InferFlorence2DetectionParam(core.CWorkflowTaskParam):
 
     def __init__(self):
         core.CWorkflowTaskParam.__init__(self)
-        self.model_name = 'microsoft/Florence-2-large'
+        self.model_name = 'florence-community/Florence-2-large'
         self.task_prompt = 'OD'
         self.prompt = ''
         self.max_new_tokens = 1024
@@ -93,7 +93,7 @@ class InferFlorence2Detection(dataprocess.CObjectDetectionTask):
                 trust_remote_code=True
             )
 
-            self.model = AutoModelForCausalLM.from_pretrained(
+            self.model = Florence2ForConditionalGeneration.from_pretrained(
                 param.model_name,
                 cache_dir=self.model_folder,
                 local_files_only=True,
@@ -109,7 +109,7 @@ class InferFlorence2Detection(dataprocess.CObjectDetectionTask):
                 trust_remote_code=True
             )
 
-            self.model = AutoModelForCausalLM.from_pretrained(
+            self.model = Florence2ForConditionalGeneration.from_pretrained(
                 param.model_name,
                 cache_dir=self.model_folder,
                 trust_remote_code=True
@@ -242,7 +242,7 @@ class InferFlorence2DetectionFactory(dataprocess.CTaskFactory):
         self.info.short_description = "Run florence 2 object detection with or without text prompt"
         # relative path -> as displayed in Ikomia Studio algorithm tree
         self.info.path = "Plugins/Python/Detection"
-        self.info.version = "2.0.0"
+        self.info.version = "3.0.0"
         self.info.icon_path = "images/icon.png"
         self.info.authors = "B. Xiao, H. Wu, W. Xu, X. Dai, H. Hu, Y. Lu, M. Zeng, C. Liu, L. Yuan"
         self.info.article = "Florence-2: Advancing a Unified Representation for a Variety of Vision Tasks"
@@ -251,10 +251,9 @@ class InferFlorence2DetectionFactory(dataprocess.CTaskFactory):
         self.info.license = "MIT License"
         # Code source repository
         self.info.repository = "https://github.com/Ikomia-hub/infer_florence_2_caption"
-        self.info.original_repository = "https://github.com/googleapis/python-vision"
         # Python version
         self.info.min_python_version = "3.11.0"
-        self.info.min_ikomia_version = "0.15.0"
+        self.info.min_ikomia_version = "0.16.1"
         # Keywords used for search
         self.info.keywords = "Florence,Microsoft,Object Detection,Unified,Pytorch"
         self.info.algo_type = core.AlgoType.INFER
